@@ -5,7 +5,7 @@
 <%@ page import="com.hospital.dao.AppointmentDAO" %>
 <%@ page import="com.hospital.model.Appointment" %>
 <%@ page import="java.util.List" %>
-<%@ page import="java.util.stream.Collectors" %>
+<%@ page import="java.util.ArrayList" %> <%-- We need to import ArrayList for our new loop --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     // Security Check
@@ -23,30 +23,39 @@
     List<Doctor> doctorList = doctorDAO.getAllDoctors();
     List<Appointment> appointmentList = appointmentDAO.getAllAppointments();
 
-    // Search Logic
+    // --- NEW SEARCH LOGIC (FIXED) ---
     String searchQuery = request.getParameter("searchName");
     List<Patient> patientList;
     if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-        patientList = patientDAO.getAllPatients().stream()
-                .filter(p -> p.getName().toLowerCase().contains(searchQuery.toLowerCase()))
-                .collect(Collectors.toList());
+        // We replaced the Java 8 .stream() with a simple for-loop
+        List<Patient> allPatients = patientDAO.getAllPatients();
+        List<Patient> filteredList = new ArrayList<>();
+        for (Patient p : allPatients) {
+            if (p.getName().toLowerCase().contains(searchQuery.toLowerCase())) {
+                filteredList.add(p);
+            }
+        }
+        patientList = filteredList;
     } else {
+        // Otherwise, get all patients
         patientList = patientDAO.getAllPatients();
     }
+    // --- END OF SEARCH LOGIC ---
 %>
 <html>
 <head>
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .action-link-delete { color: red; }
+    </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
+        <a href="logout">Logout</a>
         <h1>Admin Management Panel</h1>
-        <div class="header-links">
-            <a href="logout" class="logout">Logout</a>
-        </div>
     </div>
 
     <div class="content">
@@ -67,14 +76,6 @@
                         <input type="password" id="password" name="password" required>
                     </div>
                     <button type="submit" class="btn">Add Doctor</button>
-                    <%
-                        String docMessage = (String) request.getAttribute("docMessage");
-                        if (docMessage != null) {
-                    %>
-                    <p class="message"><%= docMessage %></p>
-                    <%
-                        }
-                    %>
                 </form>
             </div>
 
@@ -88,12 +89,7 @@
                         <td><%= doc.getId() %></td>
                         <td><%= doc.getName() %></td>
                         <td><%= doc.getSpecialization() %></td>
-                        V<td><a class="action-link-delete" href="deleteDoctor?id=<%= doc.getId() %>">Delete</a></td>
-                    </tr>
-                    <% } %>
-                    <% if (doctorList.isEmpty()) { %>
-                    <tr>
-                        <td colspan="4">No doctors registered.</td>
+                        <td><a class="action-link-delete" href="deleteDoctor?id=<%= doc.getId() %>">Delete</a></td>
                     </tr>
                     <% } %>
                     </tbody>
@@ -118,9 +114,6 @@
                 <td><%= p.getContact() %></td>
                 <td><a class="action-link-delete" href="deletePatient?id=<%= p.getId() %>">Delete</a></td>
             </tr>
-            <% } %>
-            <% if (patientList.isEmpty()) { %>
-            <tr> <td colspan="4">No patients found.</td> </tr>
             <% } %>
             </tbody>
         </table>
@@ -147,11 +140,11 @@
                     <td><%= app.getStatus() %></td>
                 </tr>
                 <% } %>
-                <% if (appointmentList.isEmpty()) { %>
-                <tr> <td colspan="5">No appointments found.</td> </tr>
-                <% } %>
                 </tbody>
             </table>
         </div>
-    </div> </div> </body>
+    </div>
+</div>
+
+</body>
 </html>

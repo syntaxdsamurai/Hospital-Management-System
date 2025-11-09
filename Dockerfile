@@ -10,7 +10,7 @@ COPY pom.xml .
 # Copy your source code
 COPY src ./src
 
-# Expose the port we defined in our pom.xml (8080)
+# Expose the port we defined in our pom.xml (8080)a
 EXPOSE 8080
 
 # This is the command to run your server
