@@ -14,8 +14,17 @@ import java.util.stream.Collectors;
 
 public class AppointmentDAO {
 
-    private static final String FILE_PATH = "data/appointments.xml";
-    private File file = new File(FILE_PATH);
+    private static String DATA_DIR = "data"; // Default for local testing
+    private File file;
+
+    // Static method to set the data directory (called from a servlet at startup)
+    public static void setDataDirectory(String dataDir) {
+        DATA_DIR = dataDir;
+    }
+
+    public AppointmentDAO() {
+        this.file = new File(DATA_DIR + File.separator + "appointments.xml");
+    }
 
     public List<Appointment> getAllAppointments() {
         if (!file.exists()) {

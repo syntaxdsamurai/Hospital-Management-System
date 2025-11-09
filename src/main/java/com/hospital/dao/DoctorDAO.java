@@ -13,8 +13,17 @@ import java.util.Optional;
 
 public class DoctorDAO {
 
-    private static final String FILE_PATH = "data/doctors.xml";
-    private File file = new File(FILE_PATH);
+    private static String DATA_DIR = "data"; // Default for local testing
+    private File file;
+
+    // Static method to set the data directory (called from a servlet at startup)
+    public static void setDataDirectory(String dataDir) {
+        DATA_DIR = dataDir;
+    }
+
+    public DoctorDAO() {
+        this.file = new File(DATA_DIR + File.separator + "doctors.xml");
+    }
 
     public List<Doctor> getAllDoctors() {
         if (!file.exists()) {

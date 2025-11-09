@@ -13,8 +13,17 @@ import java.util.stream.Collectors;
 
 public class BillDAO {
 
-    private static final String FILE_PATH = "data/bills.xml";
-    private File file = new File(FILE_PATH);
+    private static String DATA_DIR = "data"; // Default for local testing
+    private File file;
+
+    // Static method to set the data directory (called from a servlet at startup)
+    public static void setDataDirectory(String dataDir) {
+        DATA_DIR = dataDir;
+    }
+
+    public BillDAO() {
+        this.file = new File(DATA_DIR + File.separator + "bills.xml");
+    }
 
     public List<Bill> getAllBills() {
         if (!file.exists()) {
@@ -25,10 +34,7 @@ public class BillDAO {
             JAXBContext context = JAXBContext.newInstance(Bills.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             Bills billsWrapper = (Bills) unmarshaller.unmarshal(file);
-
-            // --- THIS IS THE CORRECTED LINE ---
             return billsWrapper.getBillList() != null ? billsWrapper.getBillList() : new ArrayList<>();
-
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();

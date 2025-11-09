@@ -13,8 +13,17 @@ import java.util.stream.Collectors;
 
 public class MedicalRecordDAO {
 
-    private static final String FILE_PATH = "data/medical_records.xml";
-    private File file = new File(FILE_PATH);
+    private static String DATA_DIR = "data"; // Default for local testing
+    private File file;
+
+    // Static method to set the data directory (called from a servlet at startup)
+    public static void setDataDirectory(String dataDir) {
+        DATA_DIR = dataDir;
+    }
+
+    public MedicalRecordDAO() {
+        this.file = new File(DATA_DIR + File.separator + "medical_records.xml");
+    }
 
     public List<MedicalRecord> getAllRecords() {
         if (!file.exists()) {
