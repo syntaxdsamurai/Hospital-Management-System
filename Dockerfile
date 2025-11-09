@@ -1,13 +1,18 @@
-# Stage 1: Build the .war file using Maven
-FROM maven:3.8-openjdk-11-slim AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-# We need to run 'package' to build the .war file
-RUN mvn clean package
+# Use a base image that has both Maven and Java
+FROM maven:3.8-openjdk-11-slim
 
-# Stage 2: Create the final server image
-FROM tomcat:9.0-jre11-slim
-# Copy the .war file from the build stage into Tomcat's webapps folder
-# We named it ROOT.war in the pom.xml, so it runs at the base URL
-COPY --from=build /app/target/ROOT.war /usr/local/tomcat/webapps/ROOT.war
+# Set a working directory inside the container
+WORKDIR /app
+
+# Copy the pom.xml file first
+COPY pom.xml .
+
+# Copy your source code
+COPY src ./src
+
+# Expose the port we defined in our pom.xml (8080)
+EXPOSE 8080
+
+# This is the command to run your server
+# It's the same as "Run Maven Goal" on "tomcat7:run"
+CMD ["mvn", "tomcat7:run"]
